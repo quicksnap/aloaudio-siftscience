@@ -1,0 +1,32 @@
+<?php
+/*
+ * $this == AloAudio_SiftScience_Block_Jssnippet
+*/
+$JS_KEY = Mage::getStoreConfig('siftscience_options/general/js_snippet_key');
+$userId = $this->getUserId();
+$sessionId = $this->getSessionId();
+?>
+
+<script type="text/javascript">
+  var _sift = _sift || [];
+  _sift.push(['_setAccount', '<?php echo $JS_KEY; ?>']);
+  _sift.push(['_setUserId', '<?php echo $userId; ?>']);
+  _sift.push(['_setSessionId', '<?php echo $sessionId; ?>']);
+  _sift.push(['_trackPageview']);
+
+  (function() {
+    function loadSift() {
+      var sift = document.createElement('script');
+      sift.type = 'text/javascript';
+      sift.async = true;
+      sift.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'dtlilztwypawv.cloudfront.net/s.js';
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(sift, s);
+    }
+    if (window.attachEvent) {
+      window.attachEvent('onload', loadSift);
+    } else {
+      window.addEventListener('load', loadSift, false);
+    }
+  })();
+</script>

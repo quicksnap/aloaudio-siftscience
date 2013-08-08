@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+  <modules>
+    <AloAudio_SiftScience>
+      <version>0.3.0</version>
+    </AloAudio_SiftScience>
+  </modules>
+
+  <global>
+
+    <models>
+      <aloaudio_siftscience>
+        <class>AloAudio_SiftScience_Model</class>
+      </aloaudio_siftscience>
+    </models>
+
+    <events>
+      <checkout_submit_all_after>
+        <observers>
+          <aloaudio_siftscience_checkout_observer>
+            <type>singleton</type>
+            <class>aloaudio_siftscience/checkout_observer</class>
+            <method>post_order_hook</method>
+          </aloaudio_siftscience_checkout_observer>
+        </observers>
+      </checkout_submit_all_after>
+    </events>
+
+    <blocks>
+      <aloaudio_siftscience>
+        <class>AloAudio_SiftScience_Block</class>
+      </aloaudio_siftscience>
+    </blocks>
+
+    <helpers>
+      <aloaudio_siftscience>
+        <class>AloAudio_SiftScience_Helper</class>
+      </aloaudio_siftscience>
+    </helpers>
+
+    <resources>
+      <siftscience_setup>
+        <setup>
+          <module>AloAudio_SiftScience</module>
+          <class>Mage_Sales_Model_Mysql4_Setup</class>
+        </setup>
+        <connection>
+          <use>core_setup</use>
+        </connection>
+      </siftscience_setup>
+      <siftscience_write>
+        <connection>
+          <use>core_write</use>
+        </connection>
+      </siftscience_write>
+      <siftscience_read>
+        <connection>
+          <use>core_read</use>
+        </connection>
+      </siftscience_read>
+    </resources>
+
+  </global>
+
+  <frontend>
+    <routers>
+      <aloaudio_siftscience>
+        <use>standard</use>
+        <args>
+          <module>AloAudio_SiftScience</module>
+          <frontName>siftscience</frontName>
+        </args>
+      </aloaudio_siftscience>
+    </routers>
+    <layout>
+      <updates>
+        <aloaudio_siftscience>
+          <file>siftscience.xml</file>
+        </aloaudio_siftscience>
+      </updates>
+    </layout>
+  </frontend>
+  <adminhtml>
+    <acl>
+      <resources>
+        <admin>
+          <children>
+            <system>
+              <children>
+                <config>
+                  <children>
+                    <siftscience_options>
+                      <title>SiftScience Options</title>
+                    </siftscience_options>
+                  </children>
+                </config>
+              </children>
+            </system>
+          </children>
+        </admin>
+      </resources>
+    </acl>
+  </adminhtml>
+</config>
