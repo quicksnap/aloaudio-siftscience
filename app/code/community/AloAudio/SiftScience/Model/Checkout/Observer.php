@@ -65,15 +65,18 @@ class AloAudio_SiftScience_Model_Checkout_Observer
 
       $order->setSiftscience_userid($user_id);
 
-      $score = Mage::helper('aloaudio_siftscience')->getScore($user_id);
-      $score = $score !== NULL ? $score : 'N/A';
-      $threshold = 70; // TODO: Refactor into option
-      $fraudAlert = ($score > $threshold) ? '(FRAUD RISK) ' : '';
-      $fraudRiskComment =
-        'SiftScience Score: ' . $fraudAlert . $score ."\n" .
-        'More info: ' . Mage::helper('aloaudio_siftscience')->getScoreUrl($user_id);
+      if ( Mage::getStoreConfig('siftscience_options/general/comment_creation') != false )
+      {
+        $score = Mage::helper('aloaudio_siftscience')->getScore($user_id);
+        $score = $score !== NULL ? $score : 'N/A';
+        $threshold = 70; // TODO: Refactor into option
+        $fraudAlert = ($score > $threshold) ? '(FRAUD RISK) ' : '';
+        $fraudRiskComment =
+          'SiftScience Score: ' . $fraudAlert . $score ."\n" .
+          'More info: ' . Mage::helper('aloaudio_siftscience')->getScoreUrl($user_id);
 
-      $order->addStatusHistoryComment($fraudRiskComment);
+        $order->addStatusHistoryComment($fraudRiskComment);
+      }
 
       $order->save();
 
