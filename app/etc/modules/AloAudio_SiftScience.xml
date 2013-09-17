@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <AloAudio_SiftScience>
+            <active>true</active>
+            <codePool>community</codePool>
+        </AloAudio_SiftScience>
+    </modules>
+</config>
