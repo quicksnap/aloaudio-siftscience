@@ -3,6 +3,9 @@
 Variables:
     * JS Snippet Key
     * REST API Key
+    * REST API Key
+    * Automatic Comment Creation
+    * Fraud Threshold
 -->
 <config>
     <tabs>
@@ -65,7 +68,7 @@ Variables:
 
                         <comment_creation>
                             <label>Automatic Comment Creation</label>
-                            <comment><![CDATA[Create a backend order comment with risk score. Good for 3rd-party filters]]></comment>
+                            <comment><![CDATA[Create a backend order comment with risk score. Good for 3rd-party filters.]]></comment>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>4</sort_order>
@@ -73,6 +76,16 @@ Variables:
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </comment_creation>
+
+                        <fraud_threshold>
+                            <label>Fraud Threshold</label>
+                           <comment><![CDATA[A Sift score above this level will trigger a fraud risk comment to be appended to the order history. Choose a number from 1-100.]]></comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </fraud_threshold>
 
                     </fields>
 

@@ -1,8 +1,9 @@
 <?php
 
 /**
-*
-*/
+ * Send checkout data to Sift Science API
+ * @see https://siftscience.com/docs/rest-api#transactions
+ */
 class AloAudio_SiftScience_Model_Checkout_Observer
 {
 
@@ -18,19 +19,20 @@ class AloAudio_SiftScience_Model_Checkout_Observer
       $order = $event->getOrder();
 
       if ( ! $order->getStoreId() ) {
-        // If there's no StoreId, it was placed in Admin: http://goo.gl/qntiI
+        // If there's no StoreId, the order was placed in Admin: http://goo.gl/qntiI
         return $observer;
       }
 
       $shippingAddress  = $order->getShippingAddress();
       $billingAddress   = $order->getBillingAddress();
 
-      $sift_api_key   = Mage::getStoreConfig('siftscience_options/general/rest_api_key');
-      $session_id     = Mage::helper('aloaudio_siftscience')->sessionId();
-      $user_id        = Mage::helper('aloaudio_siftscience')->userId();
-      $user_email     = $shippingAddress->getEmail();
-      $order_id       = $order->getIncrementId();
-      $amount         = $order->getGrandTotal() * 1000000;
+      $sift_api_key             = Mage::getStoreConfig('siftscience_options/general/rest_api_key');
+      $sift_fraud_threshold     = Mage::getStoreConfig('siftscience_options/general/fraud_threshold');
+      $session_id               = Mage::helper('aloaudio_siftscience')->sessionId();
+      $user_id                  = Mage::helper('aloaudio_siftscience')->userId();
+      $user_email               = $shippingAddress->getEmail();
+      $order_id                 = $order->getIncrementId();
+      $amount                   = $order->getGrandTotal() * 1000000;
 
       $data = array(
         '$api_key'        => $sift_api_key,
@@ -61,16 +63,17 @@ class AloAudio_SiftScience_Model_Checkout_Observer
 
       $result = curl_exec($ch);
 
-      // Mage::log("SiftScience Deubg Output: " . $result);
+      // Mage::log("SiftScience Debug Output: " . $result);
 
-      $order->setSiftscience_userid($user_id);
+#### TODO: Handle error codes - https://siftscience.com/docs/rest-api#error_codes
+
+      $order->setSiftscienceUserid($user_id);
 
       if ( Mage::getStoreConfig('siftscience_options/general/comment_creation') != false )
       {
         $score = Mage::helper('aloaudio_siftscience')->getScore($user_id);
         $score = $score !== NULL ? $score : 'N/A';
-        $threshold = 70; // TODO: Refactor into option
-        $fraudAlert = ($score > $threshold) ? '(FRAUD RISK) ' : '';
+        $fraudAlert = (!empty($sift_fraud_threshold) && ($score > $sift_fraud_threshold)) ? '(FRAUD RISK) ' : '';
         $fraudRiskComment =
           'SiftScience Score: ' . $fraudAlert . $score ."\n" .
           'More info: ' . Mage::helper('aloaudio_siftscience')->getScoreUrl($user_id);
