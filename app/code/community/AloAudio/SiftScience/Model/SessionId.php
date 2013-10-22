@@ -1,7 +1,7 @@
 <?php
 
 /**
-* Simply model to generate a unique id for SiftScience named session scope.
+* Simple model to generate a unique id for SiftScience named session scope.
 */
 class AloAudio_SiftScience_Model_SessionId extends Varien_Object
 {

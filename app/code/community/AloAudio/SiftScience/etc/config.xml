@@ -3,9 +3,18 @@
 <config>
   <modules>
     <AloAudio_SiftScience>
-      <version>0.3.0</version>
+      <version>0.3.4</version>
     </AloAudio_SiftScience>
   </modules>
+
+  <default>
+    <siftscience_options>
+      <general>
+        <!-- Set default fraud threshold -->
+        <fraud_threshold>70</fraud_threshold>
+      </general>
+    </siftscience_options>
+  </default>
 
   <global>
 
