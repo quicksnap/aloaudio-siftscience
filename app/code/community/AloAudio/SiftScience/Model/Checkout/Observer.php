@@ -33,7 +33,7 @@ class AloAudio_SiftScience_Model_Checkout_Observer
       $sift_include_payment     = Mage::getStoreConfig('siftscience_options/general/include_payment');
       $session_id               = Mage::helper('aloaudio_siftscience')->sessionId();
       $user_id                  = Mage::helper('aloaudio_siftscience')->userId();
-      $user_email               = $shippingAddress->getEmail();
+      $user_email               = $billingAddress->getEmail();
       $order_id                 = $order->getIncrementId();
       $amount                   = $order->getGrandTotal() * 1000000;
       $ip                       = Mage::helper('core/http')->getRemoteAddr(true);
