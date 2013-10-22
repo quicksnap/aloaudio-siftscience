@@ -36,7 +36,7 @@ class AloAudio_SiftScience_Model_Checkout_Observer
       $user_email               = $billingAddress->getEmail();
       $order_id                 = $order->getIncrementId();
       $amount                   = $order->getGrandTotal() * 1000000;
-      $ip                       = Mage::helper('core/http')->getRemoteAddr(true);
+      $ip                       = Mage::helper('core/http')->getRemoteAddr();
 
       $data = array(
 
