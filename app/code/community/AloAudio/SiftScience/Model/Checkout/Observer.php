@@ -30,6 +30,7 @@ class AloAudio_SiftScience_Model_Checkout_Observer
       $sift_fraud_threshold     = Mage::getStoreConfig('siftscience_options/general/fraud_threshold');
       $sift_include_billing     = Mage::getStoreConfig('siftscience_options/general/include_billing');
       $sift_include_shipping    = Mage::getStoreConfig('siftscience_options/general/include_shipping');
+      $sift_include_payment     = Mage::getStoreConfig('siftscience_options/general/include_payment');
       $session_id               = Mage::helper('aloaudio_siftscience')->sessionId();
       $user_id                  = Mage::helper('aloaudio_siftscience')->userId();
       $user_email               = $shippingAddress->getEmail();
@@ -61,17 +62,19 @@ class AloAudio_SiftScience_Model_Checkout_Observer
 
       ));
 
-#### TODO: Track payment data
-//       // Payment data (optional)
-//       $data = array_merge($data, array(
-//         /*
-//           First six digits of the credit card, also known as the Issuer Identification Number (IIN).
-//           If specified, this must be six digits, with no alphabetic characters.
-//          */
-//         '$billing_bin'         => $billingAddress->get,
-//
-//         '$billing_last4'       => $billingAddress->get,
-//       ));
+      // Payment data (optional)
+      if ($sift_include_payment) {
+        $data = array_merge($data, array(
+
+          /*
+            First six digits of the credit card, also known as the Issuer Identification Number (IIN).
+            If specified, this must be six digits, with no alphabetic characters.
+           */
+          // '$billing_bin'         => $billingAddress->get,
+
+          '$billing_last4'       => $order->getPayment()->getCcLast4(),
+        ));
+      }
 
       // Billing address (optional)
       if ($sift_include_billing) {
@@ -83,7 +86,7 @@ class AloAudio_SiftScience_Model_Checkout_Observer
           '$billing_city'        => $billingAddress->getCity(),
           '$billing_region'      => $billingAddress->getRegionCode(),   // 2-digit state code (or full state name if no code available)
           '$billing_country'     => $billingAddress->getCountryId(),    // 2-digit country code
-          '$billing_zip'         => $billingAddress->getPostCode(),
+          '$billing_zip'         => $billingAddress->getPostcode(),
 
         ));
       }
@@ -95,9 +98,9 @@ class AloAudio_SiftScience_Model_Checkout_Observer
           '$shipping_address1'   => $shippingAddress->getStreet1(),
           '$shipping_address2'   => $shippingAddress->getStreet2(),
           '$shipping_city'       => $shippingAddress->getCity(),
-          '$shipping_region'     => $shippingAddress->getRegionCode(),
-          '$shipping_country'    => $shippingAddress->getCountryId(),
-          '$shipping_zip'        => $shippingAddress->getPostCode(),
+          '$shipping_region'     => $shippingAddress->getRegionCode(),  // 2-digit state code (or full state name if no code available)
+          '$shipping_country'    => $shippingAddress->getCountryId(),   // 2-digit country code
+          '$shipping_zip'        => $shippingAddress->getPostcode(),
 
         ));
       }
@@ -112,7 +115,6 @@ class AloAudio_SiftScience_Model_Checkout_Observer
       curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)");
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
       curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-      curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
       curl_setopt($ch, CURLOPT_HTTPHEADER, array(
           'Content-Type: application/json',
           'Content-Length: ' . strlen($data_string))
