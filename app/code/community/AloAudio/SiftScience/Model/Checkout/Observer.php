@@ -28,22 +28,79 @@ class AloAudio_SiftScience_Model_Checkout_Observer
 
       $sift_api_key             = Mage::getStoreConfig('siftscience_options/general/rest_api_key');
       $sift_fraud_threshold     = Mage::getStoreConfig('siftscience_options/general/fraud_threshold');
+      $sift_include_billing     = Mage::getStoreConfig('siftscience_options/general/include_billing');
+      $sift_include_shipping    = Mage::getStoreConfig('siftscience_options/general/include_shipping');
       $session_id               = Mage::helper('aloaudio_siftscience')->sessionId();
       $user_id                  = Mage::helper('aloaudio_siftscience')->userId();
       $user_email               = $shippingAddress->getEmail();
       $order_id                 = $order->getIncrementId();
       $amount                   = $order->getGrandTotal() * 1000000;
+      $ip                       = Mage::helper('core/http')->getRemoteAddr(true);
 
       $data = array(
-        '$api_key'        => $sift_api_key,
-        '$type'           => '$transaction',
-        '$session_id'     => $session_id,
-        '$user_id'        => $user_id,
-        '$user_email'     => $user_email,
-        '$transaction_id' => $order_id,
-        '$currency_code'  => 'USD',
-        '$amount'         => $amount,
+
+        // Universal fields
+        '$api_key'             => $sift_api_key,
+        '$type'                => '$transaction',
+        '$user_id'             => $user_id,
+        '$time'                => time(),
+        '$user_email'          => $user_email,
+        '$ip'                  => $ip,
+
+        // Transaction events (required)
+        '$amount'              => $amount,
+        '$currency_code'       => 'USD',
+
       );
+
+      // Transaction events (optional)
+      $data = array_merge($data, array(
+
+        '$transaction_id'      => $order_id,
+        '$session_id'          => $session_id,
+
+      ));
+
+#### TODO: Track payment data
+//       // Payment data (optional)
+//       $data = array_merge($data, array(
+//         /*
+//           First six digits of the credit card, also known as the Issuer Identification Number (IIN).
+//           If specified, this must be six digits, with no alphabetic characters.
+//          */
+//         '$billing_bin'         => $billingAddress->get,
+//
+//         '$billing_last4'       => $billingAddress->get,
+//       ));
+
+      // Billing address (optional)
+      if ($sift_include_billing) {
+        $data = array_merge($data, array(
+
+          '$billing_name'        => $billingAddress->getName(),
+          '$billing_address1'    => $billingAddress->getStreet1(),
+          '$billing_address2'    => $billingAddress->getStreet2(),
+          '$billing_city'        => $billingAddress->getCity(),
+          '$billing_region'      => $billingAddress->getRegionCode(),   // 2-digit state code (or full state name if no code available)
+          '$billing_country'     => $billingAddress->getCountryId(),    // 2-digit country code
+          '$billing_zip'         => $billingAddress->getPostCode(),
+
+        ));
+      }
+
+      // Shipping address (optional)
+      if ($sift_include_shipping) {
+        $data = array_merge($data, array(
+
+          '$shipping_address1'   => $shippingAddress->getStreet1(),
+          '$shipping_address2'   => $shippingAddress->getStreet2(),
+          '$shipping_city'       => $shippingAddress->getCity(),
+          '$shipping_region'     => $shippingAddress->getRegionCode(),
+          '$shipping_country'    => $shippingAddress->getCountryId(),
+          '$shipping_zip'        => $shippingAddress->getPostCode(),
+
+        ));
+      }
 
       $data_string = json_encode($data);
 
@@ -73,7 +130,7 @@ class AloAudio_SiftScience_Model_Checkout_Observer
       {
         $score = Mage::helper('aloaudio_siftscience')->getScore($user_id);
         $score = $score !== NULL ? $score : 'N/A';
-        $fraudAlert = (!empty($sift_fraud_threshold) && ($score > $sift_fraud_threshold)) ? '(FRAUD RISK) ' : '';
+        $fraudAlert = (!empty($sift_fraud_threshold) && is_int($sift_fraud_threshold) && ($score > $sift_fraud_threshold)) ? '(FRAUD RISK) ' : '';
         $fraudRiskComment =
           'SiftScience Score: ' . $fraudAlert . $score ."\n" .
           'More info: ' . Mage::helper('aloaudio_siftscience')->getScoreUrl($user_id);
